@@ -1,0 +1,44 @@
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import {useEffect, useState} from 'react';
+import {onAuthStateChanged} from 'firebase/auth';
+import {auth} from './firebase/config';
+import Login from './components/Login';
+import Home from './components/Home';
+import CreateTournament from './components/CreateTournament';
+import CreateRound from './components/CreateRound';
+import TournamentDetail from './components/TournamentDetail';
+import RoundDetail from './components/RoundDetail';
+import GameDetail from './components/GameDetail';
+
+function App() {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={user ? <Navigate to="/home" /> : <Login />} />
+                <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />
+                <Route path="/create-tournament" element={user ? <CreateTournament /> : <Navigate to="/" />} />
+                <Route path="/create-round" element={user ? <CreateRound /> : <Navigate to="/" />} />
+                <Route path="/tournament/:id" element={user? <TournamentDetail /> : <Navigate to="/" />} />
+                <Route path="/tournament/:tournamentId/round/:roundId" element={user? <RoundDetail /> : <Navigate to="/" />} />
+                <Route path="/tournament/:tournamentId/round/:roundId/game/:gameId" element={user? <GameDetail /> : <Navigate to="/" />} />
+            </Routes>
+        </BrowserRouter>
+    );
+}
+
+export default App;

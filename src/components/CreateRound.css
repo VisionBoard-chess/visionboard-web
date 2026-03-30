@@ -1,0 +1,53 @@
+.main-content h2{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 36px;
+    color: #888;
+}
+
+.main-content form {
+    background-color: #333333;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 525px;
+    border: 1px solid #666666;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.main-content form > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.main-content form label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #eee;
+    width: 210px;
+}
+
+.main-content form input [type="text"],
+.main-content form input [type="number"],
+.main-content form input [type="datetime-local"] {
+    padding: 12px 16px;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #222;
+}
+
+.create-tournament-button {
+    background-color: #0a0a0a;
+    color: #ffffff;
+    border: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}

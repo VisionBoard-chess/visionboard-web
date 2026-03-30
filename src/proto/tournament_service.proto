@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package chesslive;
+
+service TournamentService {
+  // Crear torneo
+  rpc CreateTournament(CreateTournamentRequest) returns (CreateTournamentResponse);
+}
+
+// Crear torneo
+message CreateTournamentRequest {
+  string name = 1;
+  string description = 2;
+  string type = 3;
+  string start_date = 4;
+}
+
+message CreateTournamentResponse {
+  bool success = 1;
+  string message = 2;
+}
