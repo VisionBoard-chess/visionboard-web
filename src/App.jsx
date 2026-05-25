@@ -27,7 +27,7 @@ function App() {
     }
 
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/visualboard">
             <Routes>
                 <Route path="/" element={user ? <Navigate to="/home" /> : <Login />} />
                 <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />

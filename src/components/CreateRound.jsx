@@ -5,6 +5,16 @@ import Layout from './Layout';
 import Sidebar from './Sidebar';
 import './CreateRound.css';
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+/**
+ * Component for creating a new round in a tournament.
+ *
+ * Manages a form that let the user to add basic details
+ * of the round and upload a file with the pairings.
+ * The file can be in Excel or CSV format as in info64.com documents.
+ *
+ */
 const CreateRound = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -21,7 +31,7 @@ const CreateRound = () => {
 
     useEffect(() => {
         if(!tournamentId) return;
-        fetch(`http://localhost:8080/tournaments/${tournamentId}/rounds/next-round-number`)
+        fetch(`${BASE_URL}/tournaments/{tournamentId}/rounds/next-round-number`)
             .then(res => res.json())
             .then(data => {
                 setForm(prev => ({ ...prev, roundNumber: data.nextRoundNumber }));
@@ -29,10 +39,41 @@ const CreateRound = () => {
             .catch(() => {});
     }, [tournamentId]);
 
+    /**
+     * Updates the state of the form when ever changes an input.
+     *
+     * Parameters
+     * ----------
+     *
+     * e: Event
+     *   The event triggered by the change in the input.
+     *
+     * Returns
+     * -------
+     *
+     * void
+     */
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-
+    /**
+     * Process the Excel or CSV file uploaded to extract the pairings
+     *
+     * Reads an uploaded file from the user, detects the type of file
+     * and extracts the table numbers, white player and black player,
+     * updating the state of the game.
+     *
+     * Parameters
+     * ----------
+     *
+     * e: Event
+     *   The event triggered by the file upload.
+     *
+     * Returns
+     * -------
+     *
+     * void
+     */
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -68,6 +109,26 @@ const CreateRound = () => {
         reader.readAsArrayBuffer(file);
     };
 
+
+    /**
+     * Sends the information of the new round to the backend.
+     *
+     * When the user submits the form, this function gathers all the information
+     * from the form and the uploaded file, creates a payload and sends it to the backend
+     * to create the new round. If the request is successful, it navigates back to the tournament page.
+     * If there is an error, it updates the error state to show the message to the user.
+     *
+     * Parameters
+     * ----------
+     *
+     * e: Event
+     *   The event triggered by the form submission.
+     *
+     * Returns
+     * -------
+     *
+     * void
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -81,7 +142,7 @@ const CreateRound = () => {
 
         try {
             const response = await fetch(
-                `http://localhost:8080/tournaments/${tournamentId}/rounds`,
+                `${BASE_URL}/tournaments/${tournamentId}/rounds`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

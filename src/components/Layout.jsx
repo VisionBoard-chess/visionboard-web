@@ -2,6 +2,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { useNavigate } from 'react-router-dom';
 import './Layout.css';
+import logoDark from '../assets/visionboard_logo_dark.png'
 
 const Layout = ({ children }) => {
     const navigate = useNavigate();
@@ -19,8 +20,8 @@ const Layout = ({ children }) => {
         <div className="app-container">
             <header className="app-header">
                 <div className="header-logo" onClick={goToHome}>
-                    <img src="/src/assets/livechess_logo_dark.png" alt="LiveChess Logo" className="logo-image" />
-                    <h1>LiveChess</h1>
+                    <img src={logoDark} alt="VisionBoard Logo" className="logo-image" />
+                    <h1>VisionBoard</h1>
                 </div>
                 <button onClick={handleLogout} className="logout-button">Log-Out</button>
             </header>

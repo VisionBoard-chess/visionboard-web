@@ -4,6 +4,24 @@ import {useState, useEffect} from 'react';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+ /**
+  * Component to display the details of a specific tournament.
+  *
+  * It shows tournament metadata (like description, date, type, access code)
+  * and retrieves a list of its rounds from the backend. The round grid provides
+  * navigation access to view individual round items.
+  *
+  * Parameters
+  * ----------
+  * None
+  *
+  * Returns
+  * -------
+  * JSX.Element
+  *   The rendered component for the tournament details.
+  */
 const TournamentDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -16,7 +34,7 @@ const TournamentDetail = () => {
 
     useEffect(() => {
         if (!id) return;
-        fetch (`http://localhost:8080/tournaments/${id}/rounds`)
+        fetch (`${BASE_URL}/tournaments/${id}/rounds`)
             .then(res => res.json())
             .then(data => {
                 const sorted = [...data].sort((a, b) => a.roundNumber - b.roundNumber);
@@ -48,7 +66,7 @@ const TournamentDetail = () => {
                 <p>{tournament.description}</p>
                 <p><strong>Type:</strong> {tournament.typeOf}</p>
                 <p><strong>Start Date:</strong> {tournament.startDate}</p>
-                {tournament.accessCode && (
+                {tournament.accessCode && ( // the access code has to be private
                 <p><strong>Access Code:</strong> {tournament.accessCode}</p>
                 )}
                 <div className="content-header">

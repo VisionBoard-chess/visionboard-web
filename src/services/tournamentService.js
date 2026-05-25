@@ -1,8 +1,8 @@
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const createTournament = async (name, description, type, startDate, creatorId) => {
     try {
-        const response = await fetch('http://localhost:8080/tournaments', {
+        const response = await fetch(`${BASE_URL}/tournaments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

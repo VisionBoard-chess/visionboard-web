@@ -4,6 +4,23 @@ import {useTournaments} from '../context/TournamentContext';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+ /**
+  * Component to display the details of a specific round within a tournament.
+  *
+  * Retrieves and displays information about the round and a list of all the
+  * chess games associated with it. Allows navigation to individual games.
+  *
+  * Parameters
+  * ----------
+  * None
+  *
+  * Returns
+  * -------
+  * JSX.Element
+  *   The rendered component for the round details.
+  */
 const RoundDetail = () => {
     const {tournamentId, roundId} = useParams();
     const navigate = useNavigate();
@@ -17,8 +34,8 @@ const RoundDetail = () => {
 
     useEffect(() => {
         Promise.all([
-            fetch(`http://localhost:8080/tournaments/${tournamentId}/rounds/${roundId}`).then(res => res.json()), //tal hay que revisar la info que trae de partida
-            fetch(`http://localhost:8080/games/round/${roundId}`).then(res => res.json())
+            fetch(`${BASE_URL}/tournaments/${tournamentId}/rounds/${roundId}`).then(res => res.json()), //tal hay que revisar la info que trae de partida
+            fetch(`${BASE_URL}/games/round/${roundId}`).then(res => res.json())
         ])
             .then(([roundData, gamesData]) => {
                 setRound(roundData);

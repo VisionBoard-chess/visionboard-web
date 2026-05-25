@@ -7,6 +7,22 @@ import {auth} from '../firebase/config';
 import {useTournaments} from '../context/TournamentContext';
 import './CreateTournament.css';
 
+/**
+ * Component for creating a new tournament.
+ *
+ * Provides a form interface for the user to input tournament details such as
+ * name, description, type, and start date. It handles form submission by calling
+ * the tournament creation service and redirecting on success.
+ *
+ * Parameters
+ * ----------
+ * None
+ *
+ * Returns
+ * -------
+ * JSX.Element
+ *   The rendered component for creating a tournament.
+ */
 const CreateTournament = () => {
     const navigate = useNavigate();
     const {refreshTournaments} = useTournaments();
@@ -19,6 +35,21 @@ const CreateTournament = () => {
         creatorId: auth.currentUser?.uid || ''
     });
 
+    /**
+     * Updates the form state whenever an input field value changes.
+     *
+     * Parameters
+     * ----------
+     *
+     * e: Event
+     *   The event triggered by the change in the input field.
+     *
+     * Returns
+     * -------
+     *
+     * void
+     */
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -26,6 +57,24 @@ const CreateTournament = () => {
             [name]: value
         }));
     };
+
+    /**
+     * Submits the tournament details to the backend.
+     *
+     * Prevents default form behavior, calls the 'createTournament' API service,
+     * refreshes the tournament context upon success, and navigates to the home view.
+     *
+     * Parameters
+     * ----------
+     *
+     * e: Event
+     *   The event triggered by the form submission.
+     *
+     * Returns
+     * -------
+     *
+     * void
+     */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -49,6 +98,17 @@ const CreateTournament = () => {
         }
     };
 
+    /**
+     * Aborts the tournament creation process and navigates back to the root page.
+     *
+     * Parameters
+     * ----------
+     * None
+     *
+     * Returns
+     * -------
+     * void
+     */
     const handleCancel = () => {
         navigate('/');
     };

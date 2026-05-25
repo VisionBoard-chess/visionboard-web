@@ -8,6 +8,28 @@ import "./GameDetail.css";
 import {Chess} from "chess.js";
 import {Chessboard} from "react-chessboard";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+/**
+ * Sub-component that renders an interactive chessboard and move history.
+ * It parses the provided PGN string, and allows viewing past moves, and if the user
+ * is the tournament owner, enables an edit mode to add or modify moves. Real-time
+ * or manual updates are sent to the backend.
+ *
+ * Parameters
+ * ----------
+ * gameId: string
+ *   The unique identifier of the game, used for backend updates.
+ * initialPgn: string
+ *   The PGN string representing the moves of the game, used to initialize the board and move history.
+ * isOwner: boolean
+ *   Indicates if the current user is the owner of the tournament, which enables edit mode features.
+ *
+ * Returns
+ * -------
+ * JSX.Element
+ *   The rendered chess viewer component with board and move history.
+ */
 const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
     const [history, setHistory] = useState([]);
     const [fenHistory, setFenHistory] = useState([]);
@@ -19,6 +41,7 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
 
     useEffect(() => {
         if (!initialPgn?.trim()) return;
+        if(editMode) return;
         try {
             const game = new Chess();
             game.loadPgn(initialPgn);
@@ -33,16 +56,22 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
 
             console.log("hist length:", hist.length, "fens length:", fens.length);
 
-            setHistory(hist);
-            setFenHistory(fens);
-            setCurrentMove(hist.length);
+            setHistory(prevHistory =>{
+                const wasAtEnd = currentMove == prevHistory.length;
+                setFenHistory(fens);
+                setCurrentMove(prev => {
+                    if(editMode || !wasAtEnd) return prev;
+                    return hist.length;
+                });
+                return hist;
+            });
             setError(null);
         } catch (e) {
             setError('Invalid PGN: ' + e.message);
         } finally {
             setParsed(true);
         }
-    }, [initialPgn]);
+    }, [initialPgn, editMode]);
 
     useEffect(() => {
 
@@ -55,6 +84,26 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
         return () => window.removeEventListener("keydown", handleKey);
     }, [history.length]);
 
+    /**
+     * Handles the piece drop event on the chessboard when in edit mode.
+     *
+     * Validates the move, updates the local board state, and sends a PUT request
+     * to the backend to register the new move or overwrite the current move line.
+     *
+     * Parameters
+     * ----------
+     * sourceSquare: string
+     *   The square from which the piece is moved (e.g., "e2").
+     * targetSquare: string
+     *   The square to which the piece is moved (e.g., "e4").
+     * piece: string
+     *   The piece identifier.
+     *
+     * Returns
+     * -------
+     * boolean
+     *   True if the move was valid and processed, false otherwise.
+     */
     const onPieceDrop = useCallback((sourceSquare, targetSquare, piece) => {
         if (!editMode) return;
 
@@ -78,13 +127,13 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
         const isEdit = currentMove < history.length;
 
         if (isEdit) {
-            fetch(`http://localhost:8080/games/${gameId}/move/edit`, {
+            fetch(`${BASE_URL}/games/${gameId}/move/edit`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ moveIndex: currentMove + 1/* Puede que tenga que ser un +2 en vez de +1*/, moveSan: move.san })
             }).catch(e => console.error("Error enviando edit:", e));
         } else {
-            fetch(`http://localhost:8080/games/${gameId}/move/add`, {
+            fetch(`${BASE_URL}/games/${gameId}/move/add`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ moveSan: move.san })
@@ -184,6 +233,23 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
     );
 };
 
+/**
+ * Main component for displaying the details of a specific chess game.
+ *
+ * It retrieves the game metadata via HTTP GET request and listens for live PGN
+ * updates using Server-Sent Events (SSE). It injects the 'ChessViewer' sub-component
+ * to render the board.
+ *
+ * Parameters
+ * ----------
+ * None (relies on URL parameters and context)
+ *
+ * Returns
+ * -------
+ * JSX.Element
+ *   The rendered game detail page with chess viewer and game information.
+ */
+
 const GameDetail = () => {
     const { tournamentId, roundId, gameId } = useParams();
     const navigate = useNavigate();
@@ -196,7 +262,7 @@ const GameDetail = () => {
     const isOwner = userTournaments.some(t => t.tournamentId === tournamentId);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/games/${gameId}`)
+        fetch(`${BASE_URL}/games/${gameId}`)
             .then(res => res.json())
             .then(data => {
                 setGame(data);
@@ -206,7 +272,7 @@ const GameDetail = () => {
     }, [gameId]);
 
     useEffect(() => {
-        const se = new EventSource(`http://localhost:8080/games/${gameId}/sse`);
+        const se = new EventSource(`${BASE_URL}/games/${gameId}/sse`);
 
         se.onmessage = (e) => {
             const data = JSON.parse(e.data);

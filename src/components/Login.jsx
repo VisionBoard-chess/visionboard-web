@@ -5,6 +5,8 @@ import {useNavigate} from 'react-router-dom';
 import {getTournaments, getTournamentsByCreator} from '../services/tournamentService';
 import {useTournaments} from '../context/TournamentContext';
 import './Login.css';
+import logoDark from '../assets/visionboard_logo_dark.png'
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -46,7 +48,7 @@ const Login = () => {
     return (
         <div className="login-container">
             <form className="login-box">
-                <img src = "/src/assets/livechess_logo_dark.png" alt="Logo" className="login-logo"/>
+                <img src = {logoDark} alt="Logo" className="login-logo"/>
                 <input
                     type="email"
                     placeholder="Email"
