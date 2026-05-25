@@ -8,7 +8,7 @@ import "./GameDetail.css";
 import {Chess} from "chess.js";
 import {Chessboard} from "react-chessboard";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = "http://localhost:8080";
 
 /**
  * Sub-component that renders an interactive chessboard and move history.

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
 import {useTournaments} from '../context/TournamentContext';
+import {useUser} from '../context/UserContext';
 import './Home.css';
 
 
@@ -24,6 +25,7 @@ import './Home.css';
 const Home = () => {
     const navigate = useNavigate();
     const { userTournaments } = useTournaments();
+    const { currentUser } = useUser();
 
     /**
      * Handles the click event to redirect the user to the tournament creation page.
@@ -43,7 +45,7 @@ const Home = () => {
         <Layout>
             <Sidebar />
             <main className="main-content">
-                <h2>Welcome to VisionBoard!</h2>
+                <h2>Welcome to VisionBoard {currentUser?.nickname}!</h2>
                 <p>This is your dashboard. Here you can find the latest chess news, upcoming tournaments, and your profile stats.</p>
                 <div className="content-header">
                     <h3>Your Active Tournaments</h3>

@@ -9,17 +9,24 @@ import CreateRound from './components/CreateRound';
 import TournamentDetail from './components/TournamentDetail';
 import RoundDetail from './components/RoundDetail';
 import GameDetail from './components/GameDetail';
+import Register from "./components/Register";
+import ForgotPassword from './components/ForgotPassword';
+import VerifyEmail from './components/VerifyEmail';
 
 function App() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoading(false);
+        onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser?.emailVerified) {
+                setUser(firebaseUser);
+                setLoading(false);
+            } else {
+                setUser(null);
+                setLoading(false);
+            }
         });
-        return () => unsubscribe();
     }, []);
 
     if (loading) {
@@ -30,6 +37,9 @@ function App() {
         <BrowserRouter basename="/visualboard">
             <Routes>
                 <Route path="/" element={user ? <Navigate to="/home" /> : <Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />
                 <Route path="/create-tournament" element={user ? <CreateTournament /> : <Navigate to="/" />} />
                 <Route path="/create-round" element={user ? <CreateRound /> : <Navigate to="/" />} />

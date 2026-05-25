@@ -5,7 +5,7 @@ import Layout from './Layout';
 import Sidebar from './Sidebar';
 import './CreateRound.css';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = "http://localhost:8080";
 
 /**
  * Component for creating a new round in a tournament.
