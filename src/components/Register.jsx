@@ -15,6 +15,7 @@ const Register = () => {
     const navigate = useNavigate();
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=]).{6,}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
     const handleRegister = async (e) => {
@@ -29,6 +30,10 @@ const Register = () => {
             setError('El correo no debe ser vacío');
             return;
         }
+        if (!emailRegex.test(email)) {
+            setError('El correo no es válido');
+            return;
+        }
         if (password.trim().length <= 0) {
             setError('La contraseña no debe ser vacía');
             return;
@@ -37,8 +42,9 @@ const Register = () => {
             setError('La contraseña debe tener al menos 6 caracteres');
             return;
         }
-        if (passwordRegex.test(password)) {
+        if (!passwordRegex.test(password)) {
             setError('La contraseña debe tener al menos 6 caracteres, una mayuscula, un número y un símbolo (!@#$%^&*...)');
+            return;
         }
         if (password !== confirmPassword) {
             setError('Las contraseñas no coinciden');
