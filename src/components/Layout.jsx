@@ -1,14 +1,17 @@
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase/config';
 import { useNavigate } from 'react-router-dom';
 import './Layout.css';
 import logoDark from '../assets/visionboard_logo_dark.png'
+import {useUser} from "../context/UserContext.jsx";
+import {logoutFromFirebase} from "../services/userService.js";
 
 const Layout = ({ children }) => {
     const navigate = useNavigate();
 
+    const { clearUser } = useUser();
+
     const handleLogout = async () => {
-        await signOut(auth);
+        await logoutFromFirebase();
+        clearUser();
         navigate('/');
     };
 

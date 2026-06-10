@@ -4,7 +4,7 @@ import {useTournaments} from '../context/TournamentContext';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = "http://localhost:8080";
 
  /**
   * Component to display the details of a specific round within a tournament.

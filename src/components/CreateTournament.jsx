@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
-import {auth} from '../firebase/config';
 import {useTournaments} from '../context/TournamentContext';
+import {useUser} from '../context/UserContext';
 import './CreateTournament.css';
 
 /**
@@ -26,13 +26,14 @@ import './CreateTournament.css';
 const CreateTournament = () => {
     const navigate = useNavigate();
     const {refreshTournaments} = useTournaments();
+    const {currentUser} = useUser();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         type: 'open',
         maxPlayers: '',
         startDate: '',
-        creatorId: auth.currentUser?.uid || ''
+        creatorId: currentUser.id
     });
 
     /**

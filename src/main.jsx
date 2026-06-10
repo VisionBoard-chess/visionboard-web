@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { TournamentProvider } from './context/TournamentContext';
+import {UserProvider} from "./context/UserContext.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-      <TournamentProvider>
-          <App />
-      </TournamentProvider>
+      <UserProvider>
+          <TournamentProvider>
+              <App />
+          </TournamentProvider>
+      </UserProvider>
   </StrictMode>,
 )

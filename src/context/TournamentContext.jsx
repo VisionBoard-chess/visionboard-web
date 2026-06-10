@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getTournamentsByCreator, getTournaments } from '../services/tournamentService';
+import { getUserByFirebaseUid } from '../services/userService';
 
 const TournamentContext = createContext(null);
 
@@ -9,10 +10,9 @@ export const TournamentProvider = ({ children }) => {
     const [allTournaments, setAllTournaments] = useState([]);
     const [userTournaments, setUserTournaments] = useState([]);
 
-    const refreshTournaments = async (uid) => {
-        const currentUid = uid ||auth.currentUser?.uid;
-        if (currentUid){
-            const data = await getTournamentsByCreator(currentUid);
+    const refreshTournaments = async (userId) => {
+        if (userId) {
+            const data = await getTournamentsByCreator(userId);
             setUserTournaments(data);
         }
         const allData = await getTournaments();
@@ -20,19 +20,20 @@ export const TournamentProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                refreshTournaments(user.uid);
-            }
-            else{
+                const backendUser = await getUserByFirebaseUid(user.uid);
+                refreshTournaments(backendUser.id);
+            } else {
                 setAllTournaments([]);
                 setUserTournaments([]);
             }
         });
         return () => unsubscribe();
     }, []);
+
     return (
-        <TournamentContext.Provider value ={{
+        <TournamentContext.Provider value={{
             allTournaments, setAllTournaments,
             userTournaments, setUserTournaments,
             refreshTournaments

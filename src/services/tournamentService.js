@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = "http://localhost:8080";
 
 export const createTournament = async (name, description, type, startDate, creatorId) => {
     try {
