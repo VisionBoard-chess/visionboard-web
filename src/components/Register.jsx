@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {registerWithFirebase, createUserInBackend, verifyEmail} from '../services/userService';
+import {registerWithFirebase, createUserInBackend, verifyEmail, checkNickname} from '../services/userService';
 import logoDark from '../assets/visionboard_logo_dark.png';
 import './Login.css';
 
@@ -54,6 +54,7 @@ const Register = () => {
 
         setLoading(true);
         try {
+            await checkNickname(nickname.trim())
             const user = await registerWithFirebase(email, password);
             await verifyEmail(user)
             await createUserInBackend({
@@ -71,7 +72,7 @@ const Register = () => {
 
     return (
         <div className="login-container">
-            <form className="login-box" onSubmit={handleRegister}>
+            <form className="login-box" onSubmit={handleRegister} aria-label="register-form">
                 <img src={logoDark} alt="Logo" className="login-logo" />
                 <input
                     type="text"

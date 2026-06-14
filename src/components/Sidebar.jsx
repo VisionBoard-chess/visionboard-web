@@ -13,7 +13,6 @@ const Sidebar = () => {
     const menuItems = [
         { path: '/home', label: 'Home' },
         { path: '/tournaments', label: 'Tournaments' },
-        { path: '/stats', label: 'Stats' },
     ];
 
     return (

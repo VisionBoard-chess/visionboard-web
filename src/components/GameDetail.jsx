@@ -8,7 +8,7 @@ import "./GameDetail.css";
 import {Chess} from "chess.js";
 import {Chessboard} from "react-chessboard";
 
-const BASE_URL = "http://localhost:8080";
+import {getGameId, addMove, editMove, getGameSSEUrl} from "../services/gameService.js";
 
 /**
  * Sub-component that renders an interactive chessboard and move history.
@@ -127,17 +127,11 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
         const isEdit = currentMove < history.length;
 
         if (isEdit) {
-            fetch(`${BASE_URL}/games/${gameId}/move/edit`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ moveIndex: currentMove + 1/* Puede que tenga que ser un +2 en vez de +1*/, moveSan: move.san })
-            }).catch(e => console.error("Error enviando edit:", e));
+            editMove(gameId, currentMove + 1, move.san)
+                .catch(e => console.error("Error enviando edit:", e));
         } else {
-            fetch(`${BASE_URL}/games/${gameId}/move/add`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ moveSan: move.san })
-            }).catch(e => console.error("Error enviando add:", e));
+            addMove(gameId, move.san)
+                .catch(e => console.error("Error enviando add:", e));
         }
 
 
@@ -150,7 +144,7 @@ const ChessViewer = ({gameId, initialPgn, isOwner}) =>{
         setCurrentMove(currentMove+1);
         setEditMode(false);
         return true;
-    }, [editMode, history, currentMove, fenHistory, initialPgn]);
+    }, [editMode, history, currentMove, fenHistory, initialPgn, gameId]);
 
 
     if (!parsed) return <p> Loading...</p>
@@ -262,8 +256,7 @@ const GameDetail = () => {
     const isOwner = userTournaments.some(t => t.tournamentId === tournamentId);
 
     useEffect(() => {
-        fetch(`${BASE_URL}/games/${gameId}`)
-            .then(res => res.json())
+        getGameId(gameId)
             .then(data => {
                 setGame(data);
                 setLoading(false);
@@ -272,7 +265,7 @@ const GameDetail = () => {
     }, [gameId]);
 
     useEffect(() => {
-        const se = new EventSource(`${BASE_URL}/games/${gameId}/sse`);
+        const se = new EventSource(getGameSSEUrl(gameId));
 
         se.onmessage = (e) => {
             const data = JSON.parse(e.data);

@@ -4,8 +4,7 @@ import ExcelJS from 'exceljs';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
 import './CreateRound.css';
-
-const BASE_URL = "http://localhost:8080";
+import {createRound, getNextRoundNumber} from "../services/roundService.js";
 
 /**
  * Component for creating a new round in a tournament.
@@ -31,8 +30,7 @@ const CreateRound = () => {
 
     useEffect(() => {
         if(!tournamentId) return;
-        fetch(`${BASE_URL}/tournaments/{tournamentId}/rounds/next-round-number`)
-            .then(res => res.json())
+        getNextRoundNumber(tournamentId)
             .then(data => {
                 setForm(prev => ({ ...prev, roundNumber: data.nextRoundNumber }));
             })
@@ -141,20 +139,7 @@ const CreateRound = () => {
         };
 
         try {
-            const response = await fetch(
-                `${BASE_URL}/tournaments/${tournamentId}/rounds`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }
-            );
-
-            if (!response.ok) {
-                const msg = await response.text();
-                setError(`Error: ${msg}`);
-                return;
-            }
+            await createRound(tournamentId, payload);
 
             navigate(`/tournament/${tournamentId}`);
         } catch {
@@ -173,8 +158,9 @@ const CreateRound = () => {
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <form onSubmit={handleSubmit}> {/* Modificar para que sea onLoad para que no se pueda enviar 2 veces la petición sin querer? */}
                     <div>
-                        <label>Name</label>
+                        <label htmlFor="name">Name</label>
                         <input
+                            id="name"
                             type="text"
                             name="name"
                             value={form.name}
@@ -183,8 +169,9 @@ const CreateRound = () => {
                         />
                     </div>
                     <div>
-                        <label>Round Number</label>
+                        <label htmlFor="roundNumber">Round Number</label>
                         <input
+                            id="roundNumber"
                             type="number"
                             name="roundNumber"
                             value={form.roundNumber}
@@ -194,8 +181,9 @@ const CreateRound = () => {
                         />
                     </div>
                     <div>
-                        <label>Start Date (optional)</label>
+                        <label htmlFor="startDate">Start Date (optional)</label>
                         <input
+                            id="startDate"
                             type="datetime-local"
                             name="startDate"
                             value={form.startDate}
@@ -203,8 +191,9 @@ const CreateRound = () => {
                         />
                     </div>
                     <div>
-                        <label>Upload Pairings (Excel/CSV)</label>
+                        <label htmlFor="file">Upload Pairings (Excel/CSV)</label>
                         <input
+                            id="file"
                             type="file"
                             accept=".xlsx,.xls,.csv"
                             onChange={handleFileUpload}

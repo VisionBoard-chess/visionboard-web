@@ -1,14 +1,14 @@
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import {authenticatedFetch} from "./apiClient.js";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export const resetPassword = async(email) => {
     await sendPasswordResetEmail(auth, email);
 }
 
-export const verifyEmail = async(email) => {
-    await sendEmailVerification(email);
+export const verifyEmail = async(user) => {
+    await sendEmailVerification(user);
 }
 
 export const loginWithFirebase = async (email, password) => {
@@ -27,23 +27,16 @@ export const logoutFromFirebase = async () => {
 
 
 export const createUserInBackend = async ({ firebaseUid, nickname }) => {
-    const response = await fetch(`${API_BASE_URL}/user/register`, {
+    return authenticatedFetch('/user/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // 'Authorization': `Bearer ${token}`
         body: JSON.stringify({ firebaseUid, nickname }),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al crear el usuario en el backend');
-    }
-
-    return response.json();
 };
 
 export const getUserByFirebaseUid = async (firebaseUid) => {
-    const response = await fetch(`${API_BASE_URL}/user/${firebaseUid}`);
-    if (!response.ok) throw new Error('Error al obtener el usuario');
-    return response.json();
+    return authenticatedFetch(`/user/${firebaseUid}`);
 };
+
+export const checkNickname = async(nickname) => {
+    return authenticatedFetch(`/user/check-nickname?nickname=${nickname}`);
+}

@@ -1,81 +1,33 @@
-const BASE_URL = "http://localhost:8080";
+import {authenticatedFetch} from "./apiClient.js";
 
 export const createTournament = async (name, description, type, startDate, creatorId) => {
-    try {
-        const response = await fetch(`${BASE_URL}/tournaments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name,
-                description,
-                typeOf: type,
-                startDate: startDate + ':00',
-                creatorId
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return { success: true, data };
-    } catch (error) {
-        throw new Error(error.message);
-    }
-};
-
+    const data = await authenticatedFetch(`/tournaments`, {
+        method: 'POST',
+        body: JSON.stringify({
+            name,
+            description,
+            typeOf: type,
+            startDate: startDate + ':00',
+            creatorId
+        })
+    });
+    return {success: true, data};
+}
 
 export async function getTournaments() {
-    const response = await fetch(`${BASE_URL}/tournaments`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return await response.json();
+    return authenticatedFetch('/tournaments');
 }
 
 export async function getTournamentById(id) {
-    const response = await fetch(`${BASE_URL}/tournaments/${id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return await response.json();
+    return authenticatedFetch(`/tournaments/${id}`);
 }
 
 export async function deleteTournament(id) {
-    const response = await fetch(`${BASE_URL}/tournaments/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+    return authenticatedFetch(`/tournaments/${id}`,{
+        method: 'DELETE'
     });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return response.status === 204 ? null : await response.json();
 }
 
 export async function getTournamentsByCreator(creatorId) {
-    const response = await fetch(`${BASE_URL}/tournaments/creator/${creatorId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return await response.json();
+    return authenticatedFetch(`/tournaments/creator/${creatorId}`);
 }

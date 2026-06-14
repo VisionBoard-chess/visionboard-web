@@ -35,6 +35,7 @@ const CreateTournament = () => {
         startDate: '',
         creatorId: currentUser.id
     });
+    const [error, setError] = useState('');
 
     /**
      * Updates the form state whenever an input field value changes.
@@ -89,13 +90,12 @@ const CreateTournament = () => {
             );
             if (result.success) {
                 await refreshTournaments();
-                console.log('Successfully created');
                 navigate('/home');
             } else{
-                console.error('Error creating Tournament');
+                setError('Error creating Tournament');
             }
         } catch (error) {
-            console.error('Error creating Tournament:', error);
+            setError('Connection error: ' + error.message);
         }
     };
 
@@ -120,6 +120,7 @@ const CreateTournament = () => {
             <main className="main-content">
                 <div className="create-tournament-container">
                     <h2>Create Tournament</h2>
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="name">Name of the Tournament</label>
