@@ -35,7 +35,7 @@ function App() {
     }
 
     return (
-        <BrowserRouter basename="/visualboard">
+        <BrowserRouter basename="/visionboard">
             <Routes>
                 <Route path="/" element={user ? <Navigate to="/home" /> : <Login />} />
                 <Route path="/register" element={<Register />} />
