@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {getUserByFirebaseUid, loginWithFirebase} from '../services/userService';
 import { getTournaments, getTournamentsByCreator } from '../services/tournamentService';
@@ -16,7 +16,13 @@ const Login = () => {
     const navigate = useNavigate();
     const { setAllTournaments, setUserTournaments } = useTournaments();
 
-    const { setCurrentUser } = useUser();
+    const { currentUser, setCurrentUser } = useUser();
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/home');
+        }
+    }, [currentUser, navigate]);
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
@@ -43,7 +49,6 @@ const Login = () => {
             ]);
             setAllTournaments(all);
             setUserTournaments(userOwned);
-            navigate('/home');
         } catch (err) {
             setError(err.message);
         } finally {

@@ -35,6 +35,7 @@ const CreateTournament = () => {
         startDate: '',
         creatorId: currentUser.id
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
     /**
@@ -80,6 +81,9 @@ const CreateTournament = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
         try{
             const result = await createTournament(
                 formData.name,
@@ -96,6 +100,8 @@ const CreateTournament = () => {
             }
         } catch (error) {
             setError('Connection error: ' + error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -162,6 +168,7 @@ const CreateTournament = () => {
                                 type="datetime-local"
                                 id="startDate"
                                 name="startDate"
+                                min={new Date().toLocaleDateString('en-CA') + 'T00:00'}
                                 value={formData.startDate}
                                 onChange={handleInputChange}
                                 required
@@ -171,8 +178,8 @@ const CreateTournament = () => {
                             <button type="button" onClick={handleCancel} className="btn-cancel">
                                 Cancel
                             </button>
-                            <button type="submit" className="btn-submit">
-                                Create
+                            <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Creando...' : 'Create'}
                             </button>
                         </div>
                     </form>

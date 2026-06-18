@@ -25,6 +25,7 @@ const CreateRound = () => {
         startDate: '',
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [games, setGames] = useState([]);
     const [error, setError] = useState('');
 
@@ -92,9 +93,9 @@ const CreateRound = () => {
                 const table = row.getCell(1).value;
                 const white = row.getCell(2).value;
                 const black = row.getCell(8).value;
-                if (!table || isNaN(parseInt(table)) || !white || !black) return;
+                if (!table || Number.isNaN(Number.parseInt(table)) || !white || !black) return;
                 parsedGames.push({
-                    tableNumber: parseInt(table),
+                    tableNumber: Number.parseInt(table),
                     white: white.toString().trim(),
                     black: black.toString().trim(),
                 });
@@ -130,20 +131,23 @@ const CreateRound = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        if (isSubmitting) return;
 
+        setIsSubmitting(true);
         const payload = {
             name: form.name,
-            roundNumber: parseInt(form.roundNumber),
+            roundNumber: Number.parseInt(form.roundNumber),
             startDate: form.startDate ? form.startDate : null,
             games: games,
         };
 
         try {
             await createRound(tournamentId, payload);
-
             navigate(`/tournament/${tournamentId}`);
         } catch {
             setError('Connection error');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -156,7 +160,7 @@ const CreateRound = () => {
                 </button>
                 <h2>Create Round</h2>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
-                <form onSubmit={handleSubmit}> {/* Modificar para que sea onLoad para que no se pueda enviar 2 veces la petición sin querer? */}
+                <form onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="name">Name</label>
                         <input
@@ -186,6 +190,7 @@ const CreateRound = () => {
                             id="startDate"
                             type="datetime-local"
                             name="startDate"
+                            min={new Date().toLocaleDateString('en-CA') + 'T00:00'}
                             value={form.startDate}
                             onChange={handleChange}
                         />
@@ -199,8 +204,8 @@ const CreateRound = () => {
                             onChange={handleFileUpload}
                         />
                     </div>
-                    <button type="submit" className="create-tournament-button">
-                        Create Round
+                    <button type="submit" className="create-tournament-button" disabled={isSubmitting}>
+                        {isSubmitting ? 'Creating...' : 'Create'}
                     </button>
                 </form>
             </main>
