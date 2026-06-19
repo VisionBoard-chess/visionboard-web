@@ -158,8 +158,8 @@ const CreateTournament = () => {
                                 value={formData.type}
                                 onChange={handleInputChange}
                             >
-                                <option value="OPEN">Open</option>
-                                <option value="CLOSED">Closed</option>
+                                <option value="open">Open</option>
+                                <option value="closed">Closed</option>
                             </select>
                         </div>
                         <div className="form-group">
@@ -179,7 +179,7 @@ const CreateTournament = () => {
                                 Cancel
                             </button>
                             <button type="submit" className="btn-submit" disabled={isSubmitting}>
-                                {isSubmitting ? 'Creando...' : 'Create'}
+                                {isSubmitting ? 'Creating...' : 'Create'}
                             </button>
                         </div>
                     </form>

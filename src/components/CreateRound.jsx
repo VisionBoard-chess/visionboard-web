@@ -197,6 +197,9 @@ const CreateRound = () => {
                     </div>
                     <div>
                         <label htmlFor="file">Upload Pairings (Excel/CSV)</label>
+                        <a href="/visionboard/templates/plantilla.xlsx" download="plantilla.xlsx">
+                            Download the template
+                        </a>
                         <input
                             id="file"
                             type="file"
