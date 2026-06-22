@@ -29,9 +29,17 @@ VisionBoard Web es una aplicación web que permite a los usuarios crear y retran
     ```
 
 ## Ejecución de tests
+1. Ejecutar el siguiente comando:
 ```bash
     npx vitest
 ```
+
+## Ejecución de tests e2e
+1. Añadir un correo y contraseña verificados previamente.
+2. Ejecutar el siguiente comando:
+   ```bash
+   npx playwright test src/tests/e2e
+   ```
 
 ## Despliegue
 Para desplegar la aplicación, en tu servidor copia los archivos de la carpeta /dist del proyecto al hacer:
