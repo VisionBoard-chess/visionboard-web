@@ -35,6 +35,8 @@ const CreateTournament = () => {
         startDate: '',
         creatorId: currentUser.id
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
 
     /**
      * Updates the form state whenever an input field value changes.
@@ -79,6 +81,9 @@ const CreateTournament = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
         try{
             const result = await createTournament(
                 formData.name,
@@ -89,13 +94,14 @@ const CreateTournament = () => {
             );
             if (result.success) {
                 await refreshTournaments();
-                console.log('Successfully created');
                 navigate('/home');
             } else{
-                console.error('Error creating Tournament');
+                setError('Error creating Tournament');
             }
         } catch (error) {
-            console.error('Error creating Tournament:', error);
+            setError('Connection error: ' + error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -120,6 +126,7 @@ const CreateTournament = () => {
             <main className="main-content">
                 <div className="create-tournament-container">
                     <h2>Create Tournament</h2>
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="name">Name of the Tournament</label>
@@ -151,8 +158,8 @@ const CreateTournament = () => {
                                 value={formData.type}
                                 onChange={handleInputChange}
                             >
-                                <option value="OPEN">Open</option>
-                                <option value="CLOSED">Closed</option>
+                                <option value="open">Open</option>
+                                <option value="closed">Closed</option>
                             </select>
                         </div>
                         <div className="form-group">
@@ -161,6 +168,7 @@ const CreateTournament = () => {
                                 type="datetime-local"
                                 id="startDate"
                                 name="startDate"
+                                min={new Date().toLocaleDateString('en-CA') + 'T00:00'}
                                 value={formData.startDate}
                                 onChange={handleInputChange}
                                 required
@@ -170,8 +178,8 @@ const CreateTournament = () => {
                             <button type="button" onClick={handleCancel} className="btn-cancel">
                                 Cancel
                             </button>
-                            <button type="submit" className="btn-submit">
-                                Create
+                            <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Creating...' : 'Create'}
                             </button>
                         </div>
                     </form>

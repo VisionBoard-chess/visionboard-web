@@ -12,6 +12,7 @@ import GameDetail from './components/GameDetail';
 import Register from "./components/Register";
 import ForgotPassword from './components/ForgotPassword';
 import VerifyEmail from './components/VerifyEmail';
+import Tournaments from './components/Tournaments';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -34,7 +35,7 @@ function App() {
     }
 
     return (
-        <BrowserRouter basename="/visualboard">
+        <BrowserRouter basename="/visionboard">
             <Routes>
                 <Route path="/" element={user ? <Navigate to="/home" /> : <Login />} />
                 <Route path="/register" element={<Register />} />
@@ -46,6 +47,7 @@ function App() {
                 <Route path="/tournament/:id" element={user? <TournamentDetail /> : <Navigate to="/" />} />
                 <Route path="/tournament/:tournamentId/round/:roundId" element={user? <RoundDetail /> : <Navigate to="/" />} />
                 <Route path="/tournament/:tournamentId/round/:roundId/game/:gameId" element={user? <GameDetail /> : <Navigate to="/" />} />
+                <Route path="/tournaments" element={user ? <Tournaments /> : <Navigate to="/" />} />
             </Routes>
         </BrowserRouter>
     );

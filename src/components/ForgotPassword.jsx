@@ -9,7 +9,16 @@ const ForgotPassword = () => {
     const [error, setError]     = useState('');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    /**
+     * Handles the password reset process when the form is submitted.
+     *
+     * Parameters
+     * ----------
+     * e : Event
+     *   The event object from the form submission.
+     *
+     *
+     */
     const handleReset = async (e) => {
         e.preventDefault();
         setError('');

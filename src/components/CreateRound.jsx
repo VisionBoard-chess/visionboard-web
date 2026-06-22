@@ -4,8 +4,7 @@ import ExcelJS from 'exceljs';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
 import './CreateRound.css';
-
-const BASE_URL = "http://localhost:8080";
+import {createRound, getNextRoundNumber} from "../services/roundService.js";
 
 /**
  * Component for creating a new round in a tournament.
@@ -26,13 +25,13 @@ const CreateRound = () => {
         startDate: '',
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [games, setGames] = useState([]);
     const [error, setError] = useState('');
 
     useEffect(() => {
         if(!tournamentId) return;
-        fetch(`${BASE_URL}/tournaments/{tournamentId}/rounds/next-round-number`)
-            .then(res => res.json())
+        getNextRoundNumber(tournamentId)
             .then(data => {
                 setForm(prev => ({ ...prev, roundNumber: data.nextRoundNumber }));
             })
@@ -94,9 +93,9 @@ const CreateRound = () => {
                 const table = row.getCell(1).value;
                 const white = row.getCell(2).value;
                 const black = row.getCell(8).value;
-                if (!table || isNaN(parseInt(table)) || !white || !black) return;
+                if (!table || Number.isNaN(Number.parseInt(table)) || !white || !black) return;
                 parsedGames.push({
-                    tableNumber: parseInt(table),
+                    tableNumber: Number.parseInt(table),
                     white: white.toString().trim(),
                     black: black.toString().trim(),
                 });
@@ -132,33 +131,23 @@ const CreateRound = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        if (isSubmitting) return;
 
+        setIsSubmitting(true);
         const payload = {
             name: form.name,
-            roundNumber: parseInt(form.roundNumber),
+            roundNumber: Number.parseInt(form.roundNumber),
             startDate: form.startDate ? form.startDate : null,
             games: games,
         };
 
         try {
-            const response = await fetch(
-                `${BASE_URL}/tournaments/${tournamentId}/rounds`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }
-            );
-
-            if (!response.ok) {
-                const msg = await response.text();
-                setError(`Error: ${msg}`);
-                return;
-            }
-
+            await createRound(tournamentId, payload);
             navigate(`/tournament/${tournamentId}`);
         } catch {
             setError('Connection error');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -171,10 +160,11 @@ const CreateRound = () => {
                 </button>
                 <h2>Create Round</h2>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
-                <form onSubmit={handleSubmit}> {/* Modificar para que sea onLoad para que no se pueda enviar 2 veces la petición sin querer? */}
+                <form onSubmit={handleSubmit}>
                     <div>
-                        <label>Name</label>
+                        <label htmlFor="name">Name</label>
                         <input
+                            id="name"
                             type="text"
                             name="name"
                             value={form.name}
@@ -183,8 +173,9 @@ const CreateRound = () => {
                         />
                     </div>
                     <div>
-                        <label>Round Number</label>
+                        <label htmlFor="roundNumber">Round Number</label>
                         <input
+                            id="roundNumber"
                             type="number"
                             name="roundNumber"
                             value={form.roundNumber}
@@ -194,24 +185,30 @@ const CreateRound = () => {
                         />
                     </div>
                     <div>
-                        <label>Start Date (optional)</label>
+                        <label htmlFor="startDate">Start Date (optional)</label>
                         <input
+                            id="startDate"
                             type="datetime-local"
                             name="startDate"
+                            min={new Date().toLocaleDateString('en-CA') + 'T00:00'}
                             value={form.startDate}
                             onChange={handleChange}
                         />
                     </div>
                     <div>
-                        <label>Upload Pairings (Excel/CSV)</label>
+                        <label htmlFor="file">Upload Pairings (Excel/CSV)</label>
+                        <a href="/visionboard/templates/plantilla.xlsx" download="plantilla.xlsx">
+                            Download the template
+                        </a>
                         <input
+                            id="file"
                             type="file"
                             accept=".xlsx,.xls,.csv"
                             onChange={handleFileUpload}
                         />
                     </div>
-                    <button type="submit" className="create-tournament-button">
-                        Create Round
+                    <button type="submit" className="create-tournament-button" disabled={isSubmitting}>
+                        {isSubmitting ? 'Creating...' : 'Create'}
                     </button>
                 </form>
             </main>

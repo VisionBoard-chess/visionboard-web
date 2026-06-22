@@ -1,81 +1,121 @@
-const BASE_URL = "http://localhost:8080";
+import {authenticatedFetch} from "./apiClient.js";
 
+/**
+ * Crea un torneo con los parámetros dados
+ *
+ * Parameters
+ * ----------
+ * name:
+ *      nombre del torneo
+ * description:
+ *      descripción del torneo
+ * type:
+ *      tipo de torneo ("open" o "closed")
+ * startDate:
+ *      fecha de inicio del torneo en formato "YYYY-MM-DDTHH:mm"
+ * creatorId:
+ *      id del usuario que crea el torneo
+ *
+ * Returns
+ * -------
+ * Promise<any>
+ *      Obtiene un objeto con la información del torneo creado (TournamentResponse)
+ *
+ */
 export const createTournament = async (name, description, type, startDate, creatorId) => {
-    try {
-        const response = await fetch(`${BASE_URL}/tournaments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name,
-                description,
-                typeOf: type,
-                startDate: startDate + ':00',
-                creatorId
-            })
-        });
+    const data = await authenticatedFetch(`/tournaments`, {
+        method: 'POST',
+        body: JSON.stringify({
+            name,
+            description,
+            typeOf: type,
+            startDate: startDate + ':00',
+            creatorId
+        })
+    });
+    return {success: true, data};
+}
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return { success: true, data };
-    } catch (error) {
-        throw new Error(error.message);
-    }
-};
-
-
+/**
+ * Obtiene todos los torneos
+ *
+ * Parameters
+ * ----------
+ * None
+ *
+ * Returns
+ * -------
+ * Promise<any>
+ *      Obtiene un array con la información de todos los torneos (List<TournamentPublicResponse>)
+ */
 export async function getTournaments() {
-    const response = await fetch(`${BASE_URL}/tournaments`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return await response.json();
+    return authenticatedFetch('/tournaments');
 }
 
+/**
+ * Obtiene un torneo por su id
+ *
+ * Parameters
+ * ----------
+ * id:
+ *    id del torneo que se quiere obtener
+ *
+ * Returns
+ * -------
+ * Promise<any>
+ *      Obtiene un objeto con la información del torneo (TournamentPublicResponse)
+ *
+ * Raises
+ * ------
+ * Error BadRequest si la petición no contiene id
+ * Error NotFound si el torneo con ese id no existe
+ */
 export async function getTournamentById(id) {
-    const response = await fetch(`${BASE_URL}/tournaments/${id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return await response.json();
+    return authenticatedFetch(`/tournaments/${id}`);
 }
 
+/**
+ * Elimina un torneo por su id
+ *
+ * Parameters
+ * ----------
+ * id:
+ *    id del torneo que se quiere eliminar
+ *
+ * Returns
+ * -------
+ * Promise<any>
+ *      Obtiene una respuesta (NoContent)
+ *
+ * Raises
+ * ------
+ * Error BadRequest si la petición no contiene id
+ * Error NotFound si el torneo con ese id no existe
+ */
 export async function deleteTournament(id) {
-    const response = await fetch(`${BASE_URL}/tournaments/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+    return authenticatedFetch(`/tournaments/${id}`,{
+        method: 'DELETE'
     });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return response.status === 204 ? null : await response.json();
 }
 
+/**
+ * Obtiene los torneos creados por un usuario dado su id
+ *
+ * Parameters
+ * ----------
+ * creatorId:
+ *      id del usuario creador de los torneos
+ *
+ * Returns
+ * -------
+ * Promise<any>
+ *      Obtiene un array con la información de los torneos creados por el usuario (List<TournamentResponse>)
+ *
+ * Raises
+ * ------
+ * Error BadRequest si la petición no contiene creatorId
+ * Error NotFound si el usuario con ese id no existe (falta esto en la api)
+ */
 export async function getTournamentsByCreator(creatorId) {
-    const response = await fetch(`${BASE_URL}/tournaments/creator/${creatorId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
-    return await response.json();
+    return authenticatedFetch(`/tournaments/creator/${creatorId}`);
 }

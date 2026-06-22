@@ -3,8 +3,7 @@ import { useTournaments } from '../context/TournamentContext';
 import {useState, useEffect} from 'react';
 import Layout from './Layout';
 import Sidebar from './Sidebar';
-
-const BASE_URL = "http://localhost:8080/";
+import {getRoundsByTournament} from "../services/roundService.js";
 
  /**
   * Component to display the details of a specific tournament.
@@ -25,17 +24,19 @@ const BASE_URL = "http://localhost:8080/";
 const TournamentDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { userTournaments } = useTournaments();
+    const { userTournaments, allTournaments } = useTournaments();
 
     const [rounds, setRounds] = useState([]);
     const [loadingRounds, setLoadingRounds] = useState(true);
 
-    const tournament = userTournaments.find(t => t.tournamentId === id);
+     const tournament = userTournaments.find(t => (t.tournamentId || t.id) === id)
+         || allTournaments.find(t => (t.tournamentId || t.id) === id);
+
+    const isOwner = userTournaments.some(t => (t.tournamentId || t.id)=== id);
 
     useEffect(() => {
         if (!id) return;
-        fetch (`${BASE_URL}/tournaments/${id}/rounds`)
-            .then(res => res.json())
+        getRoundsByTournament(id)
             .then(data => {
                 const sorted = [...data].sort((a, b) => a.roundNumber - b.roundNumber);
                 setRounds(sorted);
@@ -66,17 +67,19 @@ const TournamentDetail = () => {
                 <p>{tournament.description}</p>
                 <p><strong>Type:</strong> {tournament.typeOf}</p>
                 <p><strong>Start Date:</strong> {tournament.startDate}</p>
-                {tournament.accessCode && ( // the access code has to be private
+                {isOwner && tournament.accessCode && ( // the access code has to be private
                 <p><strong>Access Code:</strong> {tournament.accessCode}</p>
                 )}
                 <div className="content-header">
                     <h3>Rounds</h3>
-                    <button
-                        onClick={() => navigate(`/create-round?tournamentId=${tournament.tournamentId}`)}
-                        className="create-tournament-button"
-                    >
-                        Add Round
-                    </button>
+                    {isOwner && (
+                        <button
+                            onClick={() => navigate(`/create-round?tournamentId=${tournament.tournamentId}`)}
+                            className="create-tournament-button"
+                        >
+                            Add Round
+                        </button>
+                        )}
                 </div>
                 {loadingRounds ? (
                     <p>Loading rounds...</p>
